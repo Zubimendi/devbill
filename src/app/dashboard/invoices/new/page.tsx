@@ -177,7 +177,7 @@ export default function NewInvoicePage() {
                     </Link>
                   </div>
                 ) : (
-                  <Select value={selectedClient} onValueChange={setSelectedClient}>
+                  <Select value={selectedClient} onValueChange={(v) => v !== null && setSelectedClient(v)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a client" />
                     </SelectTrigger>
@@ -327,7 +327,7 @@ export default function NewInvoicePage() {
                   </div>
                   <div>
                     <Label className="text-xs text-zinc-500">Status</Label>
-                    <Select value={status} onValueChange={setStatus}>
+                    <Select value={status} onValueChange={(v) => v !== null && setStatus(v)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>

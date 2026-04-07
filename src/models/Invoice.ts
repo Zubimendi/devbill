@@ -84,17 +84,31 @@ const InvoiceSchema = new mongoose.Schema(
       type: String,
       default: "USD",
     },
+    secureToken: {
+      type: String,
+      unique: true,
+    },
   },
   { timestamps: true }
 );
 
-// Auto-generate invoice number
+// Auto-generate invoice number and secure token
 InvoiceSchema.pre("validate", async function (next) {
-  if (this.isNew && !this.invoiceNumber) {
-    const count = await mongoose.models.Invoice.countDocuments({
-      userId: this.userId,
-    });
-    this.invoiceNumber = `INV-${String(count + 1).padStart(4, "0")}`;
+  if (this.isNew) {
+    // Generate Invoice Number
+    if (!this.invoiceNumber) {
+      const count = await mongoose.models.Invoice.countDocuments({
+        userId: this.userId,
+      });
+      this.invoiceNumber = `INV-${String(count + 1).padStart(4, "0")}`;
+    }
+
+    // Generate Secure Token for public access
+    if (!this.secureToken) {
+      this.secureToken =
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
+    }
   }
   next();
 });

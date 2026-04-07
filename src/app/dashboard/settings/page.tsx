@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Save, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface UserSettings {
   name: string;
@@ -26,7 +27,6 @@ export default function SettingsPage() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -56,7 +56,6 @@ export default function SettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setSaved(false);
     setError("");
 
     try {
@@ -72,14 +71,16 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
+        toast.success("Settings saved successfully");
       } else {
         const data = await res.json();
-        setError(data.message || "Failed to save settings");
+        const message = data.message || "Failed to save settings";
+        setError(message);
+        toast.error(message);
       }
     } catch (err) {
       setError("An error occurred");
+      toast.error("An error occurred");
     } finally {
       setSaving(false);
     }
@@ -106,15 +107,8 @@ export default function SettingsPage() {
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
         {error && (
-          <div className="rounded-lg bg-destructive/15 p-3 text-sm text-destructive">
+          <div className="rounded-lg bg-destructive/15 p-3 text-sm text-destructive font-medium">
             {error}
-          </div>
-        )}
-
-        {saved && (
-          <div className="flex items-center gap-2 rounded-lg bg-emerald-500/15 p-3 text-sm text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="h-4 w-4" />
-            Settings saved successfully
           </div>
         )}
 

@@ -22,7 +22,13 @@ import {
   CheckCircle2,
   Trash2,
   Download,
+  FileDown,
+  Link2,
+  Copy,
 } from "lucide-react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { InvoicePDF } from "@/components/invoice/InvoicePDF";
+import { toast } from "sonner";
 
 interface InvoiceData {
   _id: string;
@@ -44,6 +50,7 @@ interface InvoiceData {
   dueDate: string;
   notes: string;
   currency: string;
+  secureToken: string;
   createdAt: string;
 }
 
@@ -62,22 +69,33 @@ export default function InvoiceDetailPage({
   const { id } = use(params);
   const router = useRouter();
   const [invoice, setInvoice] = useState<InvoiceData | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    fetchInvoice();
+    setIsClient(true);
+    fetchData();
   }, [id]);
 
-  const fetchInvoice = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch(`/api/invoices/${id}`);
-      if (res.ok) {
-        const data = await res.json();
+      const [invoiceRes, userRes] = await Promise.all([
+        fetch(`/api/invoices/${id}`),
+        fetch("/api/settings"),
+      ]);
+
+      if (invoiceRes.ok) {
+        const data = await invoiceRes.json();
         setInvoice(data);
       }
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        setUser(userData);
+      }
     } catch (error) {
-      console.error("Error fetching invoice:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -100,6 +118,33 @@ export default function InvoiceDetailPage({
     } finally {
       setUpdating(false);
     }
+  };
+
+  const sendInvoice = async () => {
+    setUpdating(true);
+    try {
+      const res = await fetch(`/api/invoices/${id}/send`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        toast.success("Invoice sent successfully!");
+        fetchData(); // Refresh to show new status
+      } else {
+        const data = await res.json();
+        toast.error(data.message || "Failed to send invoice");
+      }
+    } catch (error) {
+      console.error("Error sending invoice:", error);
+      toast.error("An error occurred. Please check your Resend API key.");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const copyPublicLink = () => {
+    const publicUrl = `${window.location.origin}/view/invoice/${invoice?.secureToken}`;
+    navigator.clipboard.writeText(publicUrl);
+    toast.success("Public link copied to clipboard!");
   };
 
   const deleteInvoice = async () => {
@@ -158,15 +203,32 @@ export default function InvoiceDetailPage({
         <div className="flex gap-2">
           {invoice.status === "draft" && (
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               className="gap-2"
-              onClick={() => updateStatus("sent")}
+              onClick={sendInvoice}
               disabled={updating}
             >
               <Send className="h-4 w-4" />
-              Mark as Sent
+              Send Invoice
             </Button>
+          )}
+          {isClient && invoice && user && (
+            <PDFDownloadLink
+              document={<InvoicePDF invoice={invoice} user={user} />}
+              fileName={`${invoice.invoiceNumber}.pdf`}
+            >
+              {({ loading }) => (
+                <Button variant="outline" size="sm" className="gap-2" disabled={loading}>
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                  PDF
+                </Button>
+              )}
+            </PDFDownloadLink>
           )}
           {(invoice.status === "sent" || invoice.status === "overdue") && (
             <Button
@@ -179,6 +241,15 @@ export default function InvoiceDetailPage({
               Mark as Paid
             </Button>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={copyPublicLink}
+          >
+            <Link2 className="h-4 w-4" />
+            Copy Link
+          </Button>
           <Button
             variant="ghost"
             size="sm"

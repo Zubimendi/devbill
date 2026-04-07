@@ -102,44 +102,54 @@ export default function ClientsPage() {
                       {client.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-semibold text-zinc-900 dark:text-zinc-50">
+                    <Link href={`/dashboard/clients/${client._id}`}>
+                      <p className="font-semibold text-zinc-900 hover:underline dark:text-zinc-50">
                         {client.name}
                       </p>
-                      {client.company && (
-                        <p className="text-xs text-zinc-500">{client.company}</p>
-                      )}
-                    </div>
+                    </Link>
+                    {client.company && (
+                      <p className="text-xs text-zinc-500">{client.company}</p>
+                    )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 transition-opacity group-hover:opacity-100 text-zinc-400 hover:text-destructive"
-                    onClick={() => deleteClient(client._id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="opacity-0 transition-opacity group-hover:opacity-100 text-zinc-400 hover:text-destructive"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    deleteClient(client._id);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
 
-                <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-zinc-500">
+                  <Mail className="h-3.5 w-3.5" />
+                  {client.email}
+                </div>
+                {client.company && (
                   <div className="flex items-center gap-2 text-zinc-500">
-                    <Mail className="h-3.5 w-3.5" />
-                    {client.email}
+                    <Building2 className="h-3.5 w-3.5" />
+                    {client.company}
                   </div>
-                  {client.company && (
-                    <div className="flex items-center gap-2 text-zinc-500">
-                      <Building2 className="h-3.5 w-3.5" />
-                      {client.company}
-                    </div>
-                  )}
-                </div>
+                )}
+              </div>
 
-                <div className="mt-4 flex gap-2">
-                  <Link href={`/dashboard/invoices/new?client=${client._id}`} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full text-xs">
-                      Create Invoice
-                    </Button>
-                  </Link>
-                </div>
+              <div className="mt-4 flex gap-2">
+                <Link href={`/dashboard/clients/${client._id}`} className="flex-1">
+                  <Button variant="outline" size="sm" className="w-full text-xs">
+                    View
+                  </Button>
+                </Link>
+                <Link href={`/dashboard/invoices/new?client=${client._id}`} className="flex-1">
+                  <Button variant="outline" size="sm" className="w-full text-xs">
+                    Invoice
+                  </Button>
+                </Link>
+              </div>
               </CardContent>
             </Card>
           ))}

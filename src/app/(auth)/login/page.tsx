@@ -17,7 +17,9 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-export default function LoginPage() {
+import { Suspense } from "react";
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -149,5 +151,19 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }
