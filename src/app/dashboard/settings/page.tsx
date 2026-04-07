@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Loader2, Save, CheckCircle2 } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserSettings {
@@ -89,40 +88,41 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary-custom/40" />
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+    <div className="p-8 lg:p-12">
+      <div className="mb-10 max-w-2xl">
+        <h1 className="text-3xl font-bold tracking-tight text-on-surface mb-2">
           Settings
         </h1>
-        <p className="text-zinc-500 dark:text-zinc-400">
-          Manage your account and business profile
+        <p className="text-on-surface-variant font-medium">
+          Manage your account and professional business profile.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+      <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
         {error && (
-          <div className="rounded-lg bg-destructive/15 p-3 text-sm text-destructive font-medium">
+          <div className="rounded-xl bg-error/10 border border-error/20 p-4 text-sm text-error font-semibold">
             {error}
           </div>
         )}
 
         {/* Account Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Account</CardTitle>
-            <CardDescription>Your personal account details</CardDescription>
+        <Card className="border-outline-variant/15 bg-surface-container-lowest shadow-sm rounded-2xl overflow-hidden">
+          <CardHeader className="border-b border-outline-variant/5 bg-surface-container-low/20">
+            <CardTitle className="text-lg font-bold text-on-surface">Account</CardTitle>
+            <CardDescription className="font-medium text-on-surface-variant/80">Your personal account details</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6 pt-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-outline ml-1" htmlFor="name">Full Name</Label>
               <Input
                 id="name"
+                className="bg-surface-container-low/30 border-outline-variant/10 font-medium focus:ring-primary-custom"
                 value={settings.name}
                 onChange={(e) =>
                   setSettings({ ...settings, name: e.target.value })
@@ -130,34 +130,35 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-outline ml-1" htmlFor="email">Email</Label>
               <Input
                 id="email"
                 value={settings.email}
                 disabled
-                className="bg-zinc-50 dark:bg-zinc-800"
+                className="bg-surface-container-low/50 border-outline-variant/10 font-medium opacity-70"
               />
-              <p className="text-xs text-zinc-500">
-                Email cannot be changed
+              <p className="px-1 text-[10px] font-bold text-outline-variant/80 uppercase tracking-wider">
+                Note: Email cannot be changed
               </p>
             </div>
           </CardContent>
         </Card>
 
         {/* Business Profile */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Business Profile</CardTitle>
-            <CardDescription>
-              This information appears on your invoices
+        <Card className="border-outline-variant/15 bg-surface-container-lowest shadow-sm rounded-2xl overflow-hidden">
+          <CardHeader className="border-b border-outline-variant/5 bg-surface-container-low/20">
+            <CardTitle className="text-lg font-bold text-on-surface">Business Profile</CardTitle>
+            <CardDescription className="font-medium text-on-surface-variant/80">
+              This information appears on your professional invoices
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6 pt-6">
             <div className="space-y-2">
-              <Label htmlFor="businessName">Business Name</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-outline ml-1" htmlFor="businessName">Business Name</Label>
               <Input
                 id="businessName"
                 placeholder="Your Company LLC"
+                className="bg-surface-container-low/30 border-outline-variant/10 font-medium focus:ring-primary-custom"
                 value={settings.businessName}
                 onChange={(e) =>
                   setSettings({ ...settings, businessName: e.target.value })
@@ -165,10 +166,11 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="businessAddress">Business Address</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-outline ml-1" htmlFor="businessAddress">Business Address</Label>
               <Input
                 id="businessAddress"
                 placeholder="123 Main St, City, State ZIP"
+                className="bg-surface-container-low/30 border-outline-variant/10 font-medium focus:ring-primary-custom"
                 value={settings.businessAddress}
                 onChange={(e) =>
                   setSettings({ ...settings, businessAddress: e.target.value })
@@ -176,10 +178,11 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="businessTaxId">Tax ID / VAT Number</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-outline ml-1" htmlFor="businessTaxId">Tax ID / VAT Number</Label>
               <Input
                 id="businessTaxId"
                 placeholder="XX-XXXXXXX"
+                className="bg-surface-container-low/30 border-outline-variant/10 font-medium focus:ring-primary-custom"
                 value={settings.businessTaxId}
                 onChange={(e) =>
                   setSettings({ ...settings, businessTaxId: e.target.value })
@@ -189,17 +192,17 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end">
-          <Button type="submit" className="gap-2" disabled={saving}>
+        <div className="flex justify-end pt-4 pb-12">
+          <Button type="submit" className="px-8 py-6 rounded-xl font-bold gap-3 shadow-lg shadow-primary-custom/20 active:scale-95 transition-transform" disabled={saving}>
             {saving ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Saving Ledger...</span>
               </>
             ) : (
               <>
-                <Save className="h-4 w-4" />
-                Save Changes
+                <Save className="h-5 w-5" />
+                <span>Save Changes</span>
               </>
             )}
           </Button>

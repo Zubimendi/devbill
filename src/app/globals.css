@@ -7,9 +7,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Roboto Mono, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  --font-jakarta: var(--font-jakarta);
+  --font-heading: var(--font-jakarta);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +41,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -46,6 +49,55 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Premium Redesign Colors from Template */
+  --color-surface-variant: #e0e3e5;
+  --color-on-surface: #191c1e;
+  --color-secondary-fixed: #dae2fd;
+  --color-on-tertiary-fixed: #002113;
+  --color-tertiary-container: #00885d;
+  --color-on-error-container: #93000a;
+  --color-on-secondary-container: #5c647a;
+  --color-surface-tint: #494bd6;
+  --color-on-primary-fixed-variant: #2f2ebe;
+  --color-outline: #767586;
+  --color-on-tertiary-container: #000703;
+  --color-surface-container: #eceef0;
+  --color-secondary-fixed-dim: #bec6e0;
+  --color-on-background: #191c1e;
+  --color-on-secondary: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-background-custom: #f7f9fb;
+  --color-primary-custom: #4648d4;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-fixed: #6ffbbe;
+  --color-on-secondary-fixed: #131b2e;
+  --color-primary-container: #6063ee;
+  --color-secondary-container: #dae2fd;
+  --color-secondary-custom: #565e74;
+  --color-on-primary: #ffffff;
+  --color-tertiary: #006c49;
+  --color-error: #ba1a1a;
+  --color-surface-container-low: #f2f4f6;
+  --color-surface-bright: #f7f9fb;
+  --color-primary-fixed-dim: #c0c1ff;
+  --color-inverse-primary: #c0c1ff;
+  --color-outline-variant: #c7c4d7;
+  --color-surface-container-high: #e6e8ea;
+  --color-on-primary-container: #fffbff;
+  --color-surface: #f7f9fb;
+  --color-surface-container-highest: #e0e3e5;
+  --color-on-primary-fixed: #07006c;
+  --color-surface-dim: #d8dadc;
+  --color-inverse-surface: #2d3133;
+  --color-primary-fixed: #e1e0ff;
+  --color-tertiary-fixed-dim: #4edea3;
+  --color-inverse-on-surface: #eff1f3;
+  --color-on-error: #ffffff;
+  --color-on-tertiary-fixed-variant: #005236;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface-variant: #464554;
+  --color-on-secondary-fixed-variant: #3f465c;
 }
 
 :root {
@@ -117,14 +169,43 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@layer components {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .invoice-mock-shadow {
+    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5),
+      0 30px 60px -30px rgba(0, 0, 0, 0.5);
+  }
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  }
+}
+
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50 antialiased;
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;
+    letter-spacing: -0.011em;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+    letter-spacing: -0.025em;
+  }
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .translate-z-10 {
+    transform: translateZ(10px);
   }
 }

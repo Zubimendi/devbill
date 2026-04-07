@@ -30,12 +30,10 @@ interface Invoice {
 }
 
 const statusStyles: Record<string, string> = {
-  draft:
-    "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
-  sent: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  paid: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  overdue:
-    "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  draft: "bg-surface-container-highest text-on-surface-variant/80 border-outline-variant/30",
+  sent: "bg-primary-custom/10 text-primary-custom border-primary-custom/20",
+  paid: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  overdue: "bg-error/10 text-error border-error/20",
 };
 
 export default function InvoicesPage() {
@@ -68,11 +66,11 @@ export default function InvoicesPage() {
     <div className="p-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-3xl font-bold tracking-tight text-on-surface mb-2">
             Invoices
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400">
-            Manage and track all your invoices
+          <p className="text-on-surface-variant font-medium">
+            Manage and track your professional ledger entries.
           </p>
         </div>
         <Link href="/dashboard/invoices/new">
@@ -84,15 +82,15 @@ export default function InvoicesPage() {
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
         {["all", "draft", "sent", "paid", "overdue"].map((status) => (
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium capitalize transition-colors ${
+            className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all ${
               filter === status
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                ? "bg-primary-custom text-white shadow-lg shadow-primary-custom/20"
+                : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high"
             }`}
           >
             {status}
@@ -121,16 +119,16 @@ export default function InvoicesPage() {
           </Link>
         </div>
       ) : (
-        <div className="rounded-xl border border-zinc-200/50 bg-white dark:border-zinc-800/50 dark:bg-zinc-900/50">
+        <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-sm overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Invoice</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+            <TableHeader className="bg-surface-container-low/50">
+              <TableRow className="hover:bg-transparent border-outline-variant/10">
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-outline py-4">Invoice</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-outline py-4">Client</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-outline py-4">Amount</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-outline py-4">Status</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-outline py-4">Due Date</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-outline py-4 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

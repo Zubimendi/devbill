@@ -53,11 +53,11 @@ export default function ClientsPage() {
     <div className="p-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-3xl font-bold tracking-tight text-on-surface mb-2">
             Clients
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400">
-            Manage your client contacts
+          <p className="text-on-surface-variant font-medium">
+            Manage your network of professional contacts.
           </p>
         </div>
         <Link href="/dashboard/clients/new">
@@ -89,11 +89,11 @@ export default function ClientsPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {clients.map((client) => (
             <Card
               key={client._id}
-              className="group border-zinc-200/50 transition-all hover:border-zinc-300 hover:shadow-md dark:border-zinc-800/50 dark:hover:border-zinc-700"
+              className="group border-outline-variant/15 bg-surface-container-lowest transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-surface-variant/5 rounded-2xl overflow-hidden"
             >
               <CardContent className="p-5">
                 <div className="mb-4 flex items-start justify-between">

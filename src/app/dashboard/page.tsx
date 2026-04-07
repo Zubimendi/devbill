@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, FileText, Users, TrendingUp } from "lucide-react";
+import { DollarSign, FileText, Users, TrendingUp, Plus, ArrowUpRight } from "lucide-react";
 import connectDB from "@/lib/mongodb";
 import Invoice from "@/models/Invoice";
 import Client from "@/models/Client";
@@ -43,133 +43,147 @@ export default async function DashboardPage() {
   const stats = await getDashboardStats(session!.user.id);
 
   return (
-    <div className="p-8">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+    <div className="p-8 lg:p-12">
+      <header className="mb-10">
+        <h1 className="text-3xl font-bold tracking-tight text-on-surface mb-2">
           Welcome back, {session!.user?.name}
         </h1>
-        <p className="text-zinc-500 dark:text-zinc-400">
-          Here&apos;s what&apos;s happening with your invoices today.
+        <p className="text-on-surface-variant font-medium">
+          Here&apos;s a quick glance at your ledger&apos;s performance.
         </p>
       </header>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-zinc-200/50 dark:border-zinc-800/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">
+        <Card className="border-outline-variant/15 bg-surface-container-lowest shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-outline">
               Total Revenue
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-emerald-500" />
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <DollarSign className="h-4 w-4 text-emerald-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+            <div className="text-2xl font-bold text-on-surface tracking-tight">
               ${stats.totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
             </div>
-            <p className="text-xs text-zinc-500">From paid invoices</p>
+            <p className="text-xs font-semibold text-emerald-600 mt-1">From paid invoices</p>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-200/50 dark:border-zinc-800/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">
-              Invoices
+        <Card className="border-outline-variant/15 bg-surface-container-lowest shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-outline">
+              All Invoices
             </CardTitle>
-            <FileText className="h-4 w-4 text-blue-500" />
+            <div className="p-2 bg-primary-custom/5 rounded-lg">
+              <FileText className="h-4 w-4 text-primary-custom" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+            <div className="text-2xl font-bold text-on-surface tracking-tight">
               {stats.totalInvoices}
             </div>
-            <p className="text-xs text-zinc-500">
-              {stats.pendingInvoices} pending payment
+            <p className="text-xs font-medium text-on-surface-variant mt-1">
+              {stats.pendingInvoices} currently pending payment
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-200/50 dark:border-zinc-800/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">
+        <Card className="border-outline-variant/15 bg-surface-container-lowest shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-outline">
               Active Clients
             </CardTitle>
-            <Users className="h-4 w-4 text-violet-500" />
+            <div className="p-2 bg-violet-50 rounded-lg">
+              <Users className="h-4 w-4 text-violet-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+            <div className="text-2xl font-bold text-on-surface tracking-tight">
               {stats.activeClients}
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs font-medium text-on-surface-variant mt-1">
               {stats.activeClients === 0
-
-                ? "Add your first client"
-                : "Total clients"}
+                ? "Add your first client to start"
+                : "Professional developer network"}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-200/50 dark:border-zinc-800/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">
-              Payment Rate
+        <Card className="border-outline-variant/15 bg-surface-container-lowest shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-outline">
+              Paid Success Rate
             </CardTitle>
-            <TrendingUp className="h-4 w-4 text-amber-500" />
+            <div className="p-2 bg-amber-50 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-amber-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+            <div className="text-2xl font-bold text-on-surface tracking-tight">
               {stats.paidRate}%
             </div>
-            <p className="text-xs text-zinc-500">Invoices paid on time</p>
+            <p className="text-xs font-medium text-on-surface-variant mt-1">Efficiency percentage</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="mt-10">
-        <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          Quick Actions
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Quick Actions Panel */}
+      <div className="mt-16">
+        <div className="flex items-center gap-3 mb-6">
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-outline opacity-60">
+            Quick Actions Menu
+          </h2>
+          <div className="h-px flex-1 bg-outline-variant/10"></div>
+        </div>
+        
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/dashboard/invoices/new"
-            className="group flex items-center gap-4 rounded-xl border border-zinc-200/50 bg-white p-5 transition-all hover:border-violet-200 hover:shadow-lg hover:shadow-violet-500/5 dark:border-zinc-800/50 dark:bg-zinc-900/50 dark:hover:border-violet-800"
+            className="group relative flex flex-col items-start gap-4 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-primary-custom/40 hover:shadow-xl hover:shadow-primary-custom/5"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
-              <FileText className="h-5 w-5" />
+            <div className="flex w-full items-center justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-custom text-white shadow-lg shadow-primary-custom/20 group-hover:rotate-6 transition-transform">
+                <FileText className="h-6 w-6" />
+              </div>
+              <ArrowUpRight className="h-5 w-5 text-outline opacity-0 group-hover:opacity-100 transition-all" />
             </div>
-            <div>
-              <p className="font-medium text-zinc-900 dark:text-zinc-50">
-                New Invoice
-              </p>
-              <p className="text-sm text-zinc-500">Create a new invoice</p>
+            <div className="mt-2">
+              <p className="text-lg font-bold text-on-surface">New Invoice</p>
+              <p className="text-sm text-on-surface-variant font-medium">Generate a professional ledger entry.</p>
             </div>
           </Link>
 
           <Link
             href="/dashboard/clients/new"
-            className="group flex items-center gap-4 rounded-xl border border-zinc-200/50 bg-white p-5 transition-all hover:border-blue-200 hover:shadow-lg hover:shadow-blue-500/5 dark:border-zinc-800/50 dark:bg-zinc-900/50 dark:hover:border-blue-800"
+            className="group relative flex flex-col items-start gap-4 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-violet-400/40 hover:shadow-xl hover:shadow-violet-500/5"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-              <Users className="h-5 w-5" />
+            <div className="flex w-full items-center justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-lg shadow-violet-600/20 group-hover:rotate-6 transition-transform">
+                <Users className="h-6 w-6" />
+              </div>
+              <ArrowUpRight className="h-5 w-5 text-outline opacity-0 group-hover:opacity-100 transition-all" />
             </div>
-            <div>
-              <p className="font-medium text-zinc-900 dark:text-zinc-50">
-                Add Client
-              </p>
-              <p className="text-sm text-zinc-500">Register a new client</p>
+            <div className="mt-2">
+              <p className="text-lg font-bold text-on-surface">Add Client</p>
+              <p className="text-sm text-on-surface-variant font-medium">Register a contact to your business.</p>
             </div>
           </Link>
 
           <Link
             href="/dashboard/settings"
-            className="group flex items-center gap-4 rounded-xl border border-zinc-200/50 bg-white p-5 transition-all hover:border-amber-200 hover:shadow-lg hover:shadow-amber-500/5 dark:border-zinc-800/50 dark:bg-zinc-900/50 dark:hover:border-amber-800"
+            className="group relative flex flex-col items-start gap-4 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest p-6 transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-amber-400/40 hover:shadow-xl hover:shadow-amber-500/5"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-              <TrendingUp className="h-5 w-5" />
+            <div className="flex w-full items-center justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/20 group-hover:rotate-6 transition-transform">
+                <Settings className="h-6 w-6" />
+              </div>
+              <ArrowUpRight className="h-5 w-5 text-outline opacity-0 group-hover:opacity-100 transition-all" />
             </div>
-            <div>
-              <p className="font-medium text-zinc-900 dark:text-zinc-50">
-                Business Profile
-              </p>
-              <p className="text-sm text-zinc-500">Set up your details</p>
+            <div className="mt-2">
+              <p className="text-lg font-bold text-on-surface">Settings</p>
+              <p className="text-sm text-on-surface-variant font-medium">Manage your profile and branding.</p>
             </div>
           </Link>
         </div>
