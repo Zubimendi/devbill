@@ -76,6 +76,22 @@ const InvoiceSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    fromBusinessName: {
+      type: String,
+      default: "",
+    },
+    fromBusinessAddress: {
+      type: String,
+      default: "",
+    },
+    fromBusinessPhone: {
+      type: String,
+      default: "",
+    },
+    fromBusinessEmail: {
+      type: String,
+      default: "",
+    },
     notes: {
       type: String,
       default: "",

@@ -59,6 +59,10 @@ export default function NewInvoicePage() {
   const [items, setItems] = useState<InvoiceItem[]>([
     { description: "", quantity: 1, rate: 0, amount: 0 },
   ]);
+  const [businessName, setBusinessName] = useState("");
+  const [businessAddress, setBusinessAddress] = useState("");
+  const [businessPhone, setBusinessPhone] = useState("");
+  const [businessEmail, setBusinessEmail] = useState("");
   const [taxRate, setTaxRate] = useState(0);
   const [dueDate, setDueDate] = useState("");
   const [invoiceDate, setInvoiceDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -83,6 +87,10 @@ export default function NewInvoicePage() {
       if (userRes.ok) {
         const userData = await userRes.json();
         setUser(userData);
+        if (userData.businessName) setBusinessName(userData.businessName);
+        if (userData.businessAddress) setBusinessAddress(userData.businessAddress);
+        if (userData.businessPhone) setBusinessPhone(userData.businessPhone);
+        if (userData.businessEmail) setBusinessEmail(userData.businessEmail);
         if (userData.defaultTaxRate) setTaxRate(userData.defaultTaxRate);
         if (userData.defaultCurrency) setCurrency(userData.defaultCurrency);
         if (userData.defaultNotes) setNotes(userData.defaultNotes);
@@ -119,9 +127,10 @@ export default function NewInvoicePage() {
     setIsLoading(true);
     setError("");
 
+    // Only require client if not saving as draft
     if (!selectedClient && !draft) {
-      setError("Please select a client");
-      toast.error("Please select a client");
+      setError("Please select a client to create a formal invoice.");
+      toast.error("Client selection is required for non-drafts.");
       setIsLoading(false);
       return;
     }
@@ -140,6 +149,10 @@ export default function NewInvoicePage() {
           currency,
           notes,
           status: draft ? "draft" : "sent",
+          fromBusinessName: businessName,
+          fromBusinessAddress: businessAddress,
+          fromBusinessPhone: businessPhone,
+          fromBusinessEmail: businessEmail,
         }),
       });
 
@@ -229,11 +242,43 @@ export default function NewInvoicePage() {
                     </div>
                     <button className="text-[12px] font-black text-primary-custom uppercase tracking-widest hover:underline">Change Logo</button>
                   </div>
-                  <div className="space-y-3">
-                    <p className="text-xl font-black text-on-surface tracking-tight italic">{user?.businessName || "Your Business Name"}</p>
-                    <p className="text-sm font-semibold text-on-surface-variant opacity-60 leading-relaxed whitespace-pre-wrap">
-                      {user?.businessAddress || "Add address in settings"}\n{user?.businessPhone}\n{user?.businessEmail}
-                    </p>
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <Input 
+                        className="text-xl font-black text-on-surface tracking-tight italic bg-transparent border-none px-2 py-1 h-auto focus:ring-0 placeholder:opacity-20 select-all hover:bg-surface-container-low/50 rounded-lg transition-colors"
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        placeholder="Your Business Name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                       <Textarea 
+                        className="text-sm font-semibold text-on-surface-variant opacity-60 leading-relaxed bg-transparent border-none px-2 py-2 h-auto focus:ring-0 resize-none min-h-[80px] placeholder:opacity-20 hover:bg-surface-container-low/50 rounded-lg transition-colors"
+                        value={businessAddress}
+                        onChange={(e) => setBusinessAddress(e.target.value)}
+                        placeholder="Business Address"
+                      />
+                      <div className="flex flex-col gap-1 w-full">
+                        <div className="flex items-center gap-2 group/field">
+                          <span className="text-[10px] font-black uppercase text-outline/30 w-12 shrink-0">Phone</span>
+                          <Input 
+                            className="text-[13px] font-bold text-on-surface-variant/60 bg-transparent border-none px-2 py-1 h-auto focus:ring-0 hover:bg-surface-container-low/50 rounded-lg transition-colors w-full"
+                            value={businessPhone}
+                            onChange={(e) => setBusinessPhone(e.target.value)}
+                            placeholder="+1 (555) 000-0000"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 group/field">
+                          <span className="text-[10px] font-black uppercase text-outline/30 w-12 shrink-0">Email</span>
+                          <Input 
+                            className="text-[13px] font-bold text-on-surface-variant/60 bg-transparent border-none px-2 py-1 h-auto focus:ring-0 hover:bg-surface-container-low/50 rounded-lg transition-colors w-full"
+                            value={businessEmail}
+                            onChange={(e) => setBusinessEmail(e.target.value)}
+                            placeholder="billing@yourfirm.io"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

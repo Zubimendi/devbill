@@ -149,18 +149,24 @@ export const InvoicePDF = ({ invoice, user }: InvoicePDFProps) => {
 
         {/* Billing Info */}
         <View style={styles.billingGrid}>
-          <View style={styles.billFrom}>
-            <Text style={styles.sectionTitle}>From</Text>
-            <Text style={{ fontWeight: "bold", fontSize: 12 }}>{user.name}</Text>
-            {user.businessName && <Text>{user.businessName}</Text>}
-            {user.businessAddress && <Text>{user.businessAddress}</Text>}
-            <Text>{user.email}</Text>
-            {user.businessTaxId && (
-              <Text style={{ marginTop: 4, fontSize: 8 }}>
-                Tax ID: {user.businessTaxId}
-              </Text>
-            )}
-          </View>
+           <View style={styles.billFrom}>
+             <Text style={styles.sectionTitle}>From</Text>
+             <Text style={{ fontWeight: "bold", fontSize: 12 }}>
+               {invoice.fromBusinessName || user.businessName || user.name}
+             </Text>
+             {(invoice.fromBusinessAddress || user.businessAddress) && (
+               <Text>{invoice.fromBusinessAddress || user.businessAddress}</Text>
+             )}
+             <Text>{invoice.fromBusinessEmail || user.businessEmail || user.email}</Text>
+             {(invoice.fromBusinessPhone || user.businessPhone) && (
+               <Text>{invoice.fromBusinessPhone || user.businessPhone}</Text>
+             )}
+             {user.businessTaxId && (
+               <Text style={{ marginTop: 4, fontSize: 8 }}>
+                 Tax ID: {user.businessTaxId}
+               </Text>
+             )}
+           </View>
 
           <View style={styles.billTo}>
             <Text style={styles.sectionTitle}>Bill To</Text>

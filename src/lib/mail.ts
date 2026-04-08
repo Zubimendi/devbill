@@ -25,6 +25,11 @@ export const sendInvoiceEmail = async ({
   subject,
   customMessage,
 }: SendInvoiceEmailProps) => {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("Missing RESEND_API_KEY");
+    return { success: false, error: "RESEND_API_KEY is not configured" };
+  }
+  
   try {
     const defaultSubject = `New Invoice ${invoiceNumber} from ${businessName}`;
     const { data, error } = await resend.emails.send({

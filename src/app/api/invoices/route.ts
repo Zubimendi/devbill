@@ -44,7 +44,20 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { clientId, items, taxRate, dueDate, notes, status } = body;
+    const { 
+      clientId, 
+      items, 
+      taxRate, 
+      dueDate, 
+      notes, 
+      status, 
+      currency,
+      invoiceNumber,
+      fromBusinessName,
+      fromBusinessAddress,
+      fromBusinessPhone,
+      fromBusinessEmail
+    } = body;
 
     if (!clientId || !items || items.length === 0 || !dueDate) {
       return NextResponse.json(
@@ -88,6 +101,7 @@ export async function POST(req: Request) {
     const invoice = await Invoice.create({
       clientId,
       userId: session.user.id,
+      invoiceNumber,
       items: processedItems,
       subtotal,
       taxRate: tax,
@@ -96,6 +110,11 @@ export async function POST(req: Request) {
       status: status || "draft",
       dueDate: new Date(dueDate),
       notes: notes || "",
+      currency: currency || "USD",
+      fromBusinessName,
+      fromBusinessAddress,
+      fromBusinessPhone,
+      fromBusinessEmail
     });
 
     const populated = await Invoice.findById(invoice._id).populate(
