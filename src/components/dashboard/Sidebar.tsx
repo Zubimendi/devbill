@@ -8,7 +8,11 @@ import {
   FileText,
   Users,
   Settings,
+  Plus,
+  HelpCircle,
+  LogOut,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   {
@@ -42,60 +46,67 @@ export function DashboardSidebar({ userName }: { userName: string }) {
   };
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 flex-col border-r border-outline-variant/15 bg-surface-container-lowest">
-      {/* Premium Logo Header */}
-      <div className="flex h-20 items-center gap-3 px-6 border-b border-outline-variant/10">
-        <div className="w-9 h-9 bg-primary-custom rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-custom/20">
-          <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance_wallet</span>
+    <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-outline-variant/10 bg-surface-container-low lg:flex">
+      {/* Editorial Header Section */}
+      <div className="flex flex-col gap-1 px-6 py-10">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-custom text-white shadow-lg shadow-primary-custom/20">
+            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>
+          </div>
+          <div>
+            <h1 className="text-lg font-black tracking-tighter text-on-surface italic uppercase">DevBill</h1>
+            <p className="text-[10px] font-black tracking-[0.2em] text-outline uppercase opacity-60">The Sovereign Ledger</p>
+          </div>
         </div>
-        <span className="text-xl font-bold tracking-tight text-on-surface">
-          DevBill
-        </span>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1.5 px-3 py-6">
+      {/* Primary Navigation Tabs */}
+      <nav className="flex-1 space-y-1 px-4">
         {navItems.map((item) => {
           const active = isActive(item.href);
+          const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all group ${
+              className={`flex items-center gap-4 rounded-xl px-4 py-3 text-sm transition-all duration-300 group hover:translate-x-1 ${
                 active
-                  ? "bg-primary-custom/10 text-primary-custom shadow-sm"
-                  : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
+                  ? "bg-primary-custom/10 text-primary-custom font-black"
+                  : "text-on-surface-variant font-bold hover:bg-surface-container-high hover:text-on-surface"
               }`}
             >
-              <item.icon
-                className={`h-4.5 w-4.5 transition-colors ${
-                  active
-                    ? "text-primary-custom"
-                    : "text-outline group-hover:text-on-surface"
+              <Icon
+                className={`h-5 w-5 transition-all ${
+                  active ? "fill-primary-custom/20 stroke-[3px]" : "stroke-[2.5px] opacity-40 group-hover:opacity-100"
                 }`}
               />
-              <span className={active ? "font-semibold" : ""}>{item.label}</span>
+              <span className="tracking-tight">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Premium User Segment */}
-      <div className="border-t border-outline-variant/10 p-5 bg-surface-container-low/30">
-        <div className="mb-4 flex items-center gap-3 px-1">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-custom to-primary-container font-bold text-white shadow-sm shadow-primary-custom/10">
-            {userName.charAt(0).toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-semibold text-on-surface">
-              {userName}
-            </p>
-            <p className="truncate text-[10px] font-bold text-outline-variant uppercase tracking-wider">
-              Ledger Admin
-            </p>
-          </div>
+      {/* Action Suite & Footer */}
+      <div className="mt-auto flex flex-col gap-1 border-t border-outline-variant/10 p-5">
+        <Link href="/dashboard/invoices/new" className="mb-6">
+          <Button className="h-14 w-full gap-3 rounded-[20px] bg-gradient-to-tr from-primary-custom to-primary-container font-black text-sm uppercase tracking-widest text-white shadow-2xl shadow-primary-custom/20 transition-all hover:shadow-primary-custom/40 active:scale-95">
+            <Plus className="h-5 w-5 stroke-[4px]" aria-hidden="true" />
+            <span>New Invoice</span>
+          </Button>
+        </Link>
+        
+        <Link 
+          href="/dashboard/support"
+          className="flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-bold text-on-surface-variant transition-all hover:bg-surface-container-high hover:text-on-surface"
+        >
+          <HelpCircle className="h-5 w-5 stroke-[2.5px] opacity-40" />
+          <span>Support</span>
+        </Link>
+
+        {/* Custom Logout UI inspired by the design */}
+        <div className="mt-2 group">
+           <LogoutButton />
         </div>
-        <LogoutButton />
       </div>
     </aside>
   );

@@ -20,6 +20,8 @@ export async function POST(
 
     await connectDB();
 
+    const { to: customTo, subject, message } = await req.json().catch(() => ({}));
+
     // Fetch the invoice and ensure it belongs to the current user
     const invoice = await Invoice.findOne({
       _id: id,
@@ -41,7 +43,7 @@ export async function POST(
 
     // Dispatch the email
     const mailResult = await sendInvoiceEmail({
-      to: invoice.clientId.email,
+      to: customTo || invoice.clientId.email,
       clientName: invoice.clientId.name,
       invoiceNumber: invoice.invoiceNumber,
       dueDate: new Date(invoice.dueDate).toLocaleDateString("en-US", {
@@ -54,6 +56,8 @@ export async function POST(
       })}`,
       viewLink,
       businessName,
+      subject,
+      customMessage: message,
     });
 
     if (!mailResult.success) {

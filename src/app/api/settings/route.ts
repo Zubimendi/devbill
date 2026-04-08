@@ -38,8 +38,20 @@ export async function PUT(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, businessName, businessAddress, businessTaxId } =
-      await req.json();
+    const {
+      name,
+      businessName,
+      businessAddress,
+      businessTaxId,
+      businessEmail,
+      businessPhone,
+      businessWebsite,
+      currency,
+      taxRate,
+      paymentTerms,
+      themeColor,
+      defaultNotes,
+    } = await req.json();
 
     await connectDB();
 
@@ -50,6 +62,14 @@ export async function PUT(req: Request) {
         ...(businessName !== undefined && { businessName }),
         ...(businessAddress !== undefined && { businessAddress }),
         ...(businessTaxId !== undefined && { businessTaxId }),
+        ...(businessEmail !== undefined && { businessEmail }),
+        ...(businessPhone !== undefined && { businessPhone }),
+        ...(businessWebsite !== undefined && { businessWebsite }),
+        ...(currency !== undefined && { currency }),
+        ...(taxRate !== undefined && { taxRate }),
+        ...(paymentTerms !== undefined && { paymentTerms }),
+        ...(themeColor !== undefined && { themeColor }),
+        ...(defaultNotes !== undefined && { defaultNotes }),
       },
       { new: true, runValidators: true }
     ).select("-password");

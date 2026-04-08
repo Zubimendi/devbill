@@ -22,6 +22,15 @@ const UserSchema = new mongoose.Schema(
     businessAddress: String,
     businessTaxId: String,
     businessLogo: String, // URL to the logo
+    businessEmail: String,
+    businessPhone: String,
+    businessWebsite: String,
+    // Invoice Defaults
+    currency: { type: String, default: "USD" },
+    taxRate: { type: Number, default: 0 },
+    paymentTerms: { type: String, default: "Net 30" },
+    themeColor: { type: String, default: "#4648d4" },
+    defaultNotes: String,
   },
   { timestamps: true }
 );

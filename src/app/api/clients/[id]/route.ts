@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import connectDB from "@/lib/mongodb";
@@ -16,7 +17,61 @@ export async function GET(
 
     const { id } = await params;
     await connectDB();
-    const client = await Client.findOne({ _id: id, userId: session.user.id });
+
+    // Combined query for client data and invoice stats
+    const results = await Client.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(id), userId: new mongoose.Types.ObjectId(session.user.id) } },
+      {
+        $lookup: {
+          from: "invoices",
+          localField: "_id",
+          foreignField: "clientId",
+          as: "invoices",
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          company: 1,
+          address: 1,
+          phone: 1,
+          createdAt: 1,
+          totalBilled: { $sum: "$invoices.total" },
+          totalPaid: {
+            $sum: {
+              $map: {
+                input: { $filter: { input: "$invoices", as: "inv", cond: { $eq: ["$$inv.status", "paid"] } } },
+                as: "paidInv",
+                in: "$$paidInv.total"
+              }
+            }
+          },
+          totalOutstanding: {
+            $sum: {
+              $map: {
+                input: { $filter: { input: "$invoices", as: "inv", cond: { $ne: ["$$inv.status", "paid"] } } },
+                as: "unpaidInv",
+                in: "$$unpaidInv.total"
+              }
+            }
+          },
+          recentInvoices: {
+            $slice: [
+              {
+                $sortArray: {
+                  input: "$invoices",
+                  sortBy: { createdAt: -1 }
+                }
+              },
+              5
+            ]
+          }
+        },
+      },
+    ]);
+
+    const client = results[0];
 
     if (!client) {
       return NextResponse.json(

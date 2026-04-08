@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import connectDB from "@/lib/mongodb";
@@ -12,9 +13,31 @@ export async function GET() {
     }
 
     await connectDB();
-    const clients = await Client.find({ userId: session.user.id }).sort({
-      createdAt: -1,
-    });
+    const clients = await Client.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(session.user.id) } },
+      {
+        $lookup: {
+          from: "invoices",
+          localField: "_id",
+          foreignField: "clientId",
+          as: "invoices",
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          company: 1,
+          address: 1,
+          phone: 1,
+          createdAt: 1,
+          invoiceCount: { $size: "$invoices" },
+          totalBilled: { $sum: "$invoices.total" },
+          lastInvoiceDate: { $max: "$invoices.createdAt" },
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
 
     return NextResponse.json(clients);
   } catch (error) {

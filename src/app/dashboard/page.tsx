@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, FileText, Users, TrendingUp, Plus, ArrowUpRight } from "lucide-react";
+import { DollarSign, FileText, Users, TrendingUp, Plus, ArrowUpRight, Settings } from "lucide-react";
 import connectDB from "@/lib/mongodb";
 import Invoice from "@/models/Invoice";
 import Client from "@/models/Client";

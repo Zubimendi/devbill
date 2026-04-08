@@ -10,6 +10,8 @@ interface SendInvoiceEmailProps {
   totalAmount: string;
   viewLink: string;
   businessName: string;
+  subject?: string;
+  customMessage?: string;
 }
 
 export const sendInvoiceEmail = async ({
@@ -20,23 +22,26 @@ export const sendInvoiceEmail = async ({
   totalAmount,
   viewLink,
   businessName,
+  subject,
+  customMessage,
 }: SendInvoiceEmailProps) => {
   try {
+    const defaultSubject = `New Invoice ${invoiceNumber} from ${businessName}`;
     const { data, error } = await resend.emails.send({
       from: "devbill <onboarding@resend.dev>",
       to: [to],
-      subject: `New Invoice ${invoiceNumber} from ${businessName}`,
+      subject: subject || defaultSubject,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <div style="display: inline-block; background-color: #09090b; color: white; padding: 10px 20px; borderRadius: 8px; font-weight: bold; font-size: 24px;">db</div>
+            <div style="display: inline-block; background-color: #494bd6; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 24px;">db</div>
           </div>
           
           <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">Hello, ${clientName}</h2>
           
-          <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-            ${businessName} has sent you a new invoice <strong>${invoiceNumber}</strong>.
-          </p>
+          <div style="font-size: 16px; line-height: 1.6; margin-bottom: 20px; white-space: pre-wrap;">
+            ${customMessage ? customMessage : `${businessName} has sent you a new invoice <strong>${invoiceNumber}</strong>.`}
+          </div>
           
           <div style="background-color: #f4f4f5; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
@@ -50,15 +55,15 @@ export const sendInvoiceEmail = async ({
           </div>
           
           <div style="text-align: center; margin-bottom: 30px;">
-            <a href="${viewLink}" style="display: inline-block; background-color: #09090b; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">View & Download Invoice</a>
+            <a href="${viewLink}" style="display: inline-block; background-color: #494bd6; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">View & Download Invoice</a>
           </div>
           
-          <p style="font-size: 14px; color: #71717a; line-height: 1.6; border-top: 1px solid #e4e4e7; pt-20px;">
+          <p style="font-size: 14px; color: #71717a; line-height: 1.6; border-top: 1px solid #e4e4e7; padding-top: 20px;">
             If you have any questions, please reply directly to this email or contact ${businessName}.
           </p>
           
           <div style="text-align: center; margin-top: 40px; font-size: 12px; color: #a1a1aa;">
-            Sent securely via devbill — Modern Invoicing for Developers
+            Sent securely via devbill — The Sovereign Ledger
           </div>
         </div>
       `,

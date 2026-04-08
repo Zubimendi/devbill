@@ -22,12 +22,11 @@ import {
   CheckCircle2,
   Trash2,
   Download,
-  FileDown,
   Link2,
-  Copy,
 } from "lucide-react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "@/components/invoice/InvoicePDF";
+import { SendInvoiceModal } from "@/components/invoice/SendInvoiceModal";
 import { toast } from "sonner";
 
 interface InvoiceData {
@@ -55,10 +54,10 @@ interface InvoiceData {
 }
 
 const statusStyles: Record<string, string> = {
-  draft: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
-  sent: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  paid: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  overdue: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  draft: "bg-surface-container-high text-on-surface-variant border-outline-variant/20",
+  sent: "bg-primary-custom/10 text-primary-custom border-primary-custom/20",
+  paid: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  overdue: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
 export default function InvoiceDetailPage({
@@ -73,6 +72,8 @@ export default function InvoiceDetailPage({
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [isClient, setIsClient] = useState(false);
+
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -112,9 +113,11 @@ export default function InvoiceDetailPage({
       if (res.ok) {
         const data = await res.json();
         setInvoice(data);
+        toast.success(`Invoice marked as ${newStatus}`);
       }
     } catch (error) {
       console.error("Error updating invoice:", error);
+      toast.error("Failed to update status");
     } finally {
       setUpdating(false);
     }
@@ -128,14 +131,14 @@ export default function InvoiceDetailPage({
       });
       if (res.ok) {
         toast.success("Invoice sent successfully!");
-        fetchData(); // Refresh to show new status
+        fetchData();
       } else {
         const data = await res.json();
         toast.error(data.message || "Failed to send invoice");
       }
     } catch (error) {
       console.error("Error sending invoice:", error);
-      toast.error("An error occurred. Please check your Resend API key.");
+      toast.error("An error occurred. Please check your settings.");
     } finally {
       setUpdating(false);
     }
@@ -153,6 +156,7 @@ export default function InvoiceDetailPage({
       const res = await fetch(`/api/invoices/${id}`, { method: "DELETE" });
       if (res.ok) {
         router.push("/dashboard/invoices");
+        toast.success("Invoice deleted");
       }
     } catch (error) {
       console.error("Error deleting invoice:", error);
@@ -161,18 +165,19 @@ export default function InvoiceDetailPage({
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+      <div className="flex h-[60vh] items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary-custom" />
       </div>
     );
   }
 
   if (!invoice) {
     return (
-      <div className="p-8 text-center">
-        <p className="text-zinc-500">Invoice not found</p>
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+        <p className="text-on-surface-variant text-xl font-semibold opacity-60">Invoice not found</p>
         <Link href="/dashboard/invoices">
-          <Button variant="outline" className="mt-4">
+          <Button variant="outline" className="h-12 px-8 rounded-xl font-bold">
+            <ArrowLeft className="mr-2 h-5 w-5" />
             Back to Invoices
           </Button>
         </Link>
@@ -181,182 +186,202 @@ export default function InvoiceDetailPage({
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
+    <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Top Header Actions */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between border-b pb-8 border-outline-variant/10">
+        <div className="space-y-4">
           <Link
             href="/dashboard/invoices"
-            className="mb-4 inline-flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-zinc-300"
+            className="group inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-outline hover:text-primary-custom transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Back to Invoices
           </Link>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <div className="flex items-center gap-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface">
               {invoice.invoiceNumber}
             </h1>
-            <Badge className={`capitalize ${statusStyles[invoice.status]}`} variant="secondary">
+            <Badge className={`px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-wider border shadow-sm ${statusStyles[invoice.status]}`} variant="outline">
               {invoice.status}
             </Badge>
           </div>
         </div>
-        <div className="flex gap-2">
+        
+        <div className="flex flex-wrap gap-3">
           {invoice.status === "draft" && (
             <Button
               variant="default"
-              size="sm"
-              className="gap-2"
-              onClick={sendInvoice}
+              className="h-13 px-6 rounded-2xl font-black gap-2 bg-primary-custom hover:bg-primary-container shadow-lg shadow-primary-custom/20 transition-all active:scale-95"
+              onClick={() => setIsSendModalOpen(true)}
               disabled={updating}
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-5 w-5" />
               Send Invoice
             </Button>
           )}
+          
+          <SendInvoiceModal 
+            isOpen={isSendModalOpen}
+            onClose={() => setIsSendModalOpen(false)}
+            invoice={invoice}
+            user={user}
+            onSent={fetchData}
+          />
+          
           {isClient && invoice && user && (
             <PDFDownloadLink
               document={<InvoicePDF invoice={invoice} user={user} />}
               fileName={`${invoice.invoiceNumber}.pdf`}
             >
               {({ loading }) => (
-                <Button variant="outline" size="sm" className="gap-2" disabled={loading}>
+                <Button variant="outline" className="h-13 px-6 rounded-2xl font-black gap-2 border-outline-variant/20 hover:bg-surface-container-low transition-all active:scale-95" disabled={loading}>
                   {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin text-primary-custom" />
                   ) : (
-                    <Download className="h-4 w-4" />
+                    <Download className="h-5 w-5" />
                   )}
-                  PDF
+                  Export PDF
                 </Button>
               )}
             </PDFDownloadLink>
           )}
+
           {(invoice.status === "sent" || invoice.status === "overdue") && (
             <Button
-              size="sm"
-              className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+              className="h-13 px-6 rounded-2xl font-black gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
               onClick={() => updateStatus("paid")}
               disabled={updating}
             >
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2 className="h-5 w-5" />
               Mark as Paid
             </Button>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={copyPublicLink}
-          >
-            <Link2 className="h-4 w-4" />
-            Copy Link
-          </Button>
+
           <Button
             variant="ghost"
-            size="sm"
-            className="text-destructive hover:text-destructive"
-            onClick={deleteInvoice}
+            className="h-13 w-13 p-0 rounded-2xl hover:bg-surface-container-low transition-all"
+            onClick={copyPublicLink}
+            title="Copy Public Link"
           >
-            <Trash2 className="h-4 w-4" />
+            <Link2 className="h-6 w-6 text-on-surface-variant" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="h-13 w-13 p-0 rounded-2xl hover:bg-destructive/5 group transition-all"
+            onClick={deleteInvoice}
+            title="Delete Invoice"
+          >
+            <Trash2 className="h-6 w-6 text-on-surface-variant group-hover:text-destructive" />
           </Button>
         </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
-        {/* Invoice Details */}
-        <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-8 grid grid-cols-2 gap-8">
+        {/* Main Invoice Section */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="border-none bg-surface-container-lowest shadow-2xl shadow-on-surface/5 rounded-3xl overflow-hidden">
+            <CardContent className="p-8 md:p-12">
+              <div className="flex flex-col md:flex-row md:justify-between gap-12 mb-16">
                 <div>
-                  <p className="mb-1 text-xs font-medium uppercase text-zinc-500">
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-outline mb-4">
                     Bill To
                   </p>
-                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">
-                    {invoice.clientId?.name}
-                  </p>
-                  {invoice.clientId?.company && (
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {invoice.clientId.company}
+                  <div className="space-y-1">
+                    <p className="text-2xl font-extrabold text-on-surface tracking-tight">
+                      {invoice.clientId?.name}
                     </p>
-                  )}
-                  <p className="text-sm text-zinc-500">
-                    {invoice.clientId?.email}
-                  </p>
-                  {invoice.clientId?.address && (
-                    <p className="text-sm text-zinc-500">
-                      {invoice.clientId.address}
+                    {invoice.clientId?.company && (
+                      <p className="text-lg font-semibold text-on-surface-variant opacity-80">
+                        {invoice.clientId.company}
+                      </p>
+                    )}
+                    <p className="text-on-surface-variant font-medium">
+                      {invoice.clientId?.email}
                     </p>
-                  )}
+                    {invoice.clientId?.address && (
+                      <p className="text-on-surface-variant/70 text-sm max-w-xs mt-2 leading-relaxed">
+                        {invoice.clientId.address}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="mb-1 text-xs font-medium uppercase text-zinc-500">
+                
+                <div className="md:text-right">
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-outline mb-4">
                     Invoice Details
                   </p>
-                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">
-                    {invoice.invoiceNumber}
-                  </p>
-                  <p className="text-sm text-zinc-500">
-                    Issued:{" "}
-                    {new Date(invoice.createdAt).toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </p>
-                  <p className="text-sm text-zinc-500">
-                    Due:{" "}
-                    {new Date(invoice.dueDate).toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </p>
+                  <div className="space-y-2">
+                    <p className="text-2xl font-extrabold text-on-surface tracking-tight">
+                      {invoice.invoiceNumber}
+                    </p>
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-semibold text-on-surface-variant">
+                        <span className="opacity-40 font-black uppercase text-[10px] mr-2">Issued:</span>
+                        {new Date(invoice.createdAt).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </p>
+                      <p className="text-sm font-semibold text-on-surface-variant">
+                        <span className="opacity-40 font-black uppercase text-[10px] mr-2">Due Date:</span>
+                        {new Date(invoice.dueDate).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="text-right">Qty</TableHead>
-                    <TableHead className="text-right">Rate</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {invoice.items.map((item, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{item.description}</TableCell>
-                      <TableCell className="text-right">
-                        {item.quantity}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        ${item.rate.toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        ${item.amount.toFixed(2)}
-                      </TableCell>
+              <div className="overflow-x-auto -mx-8 px-8">
+                <Table>
+                  <TableHeader className="bg-surface-container-low/30">
+                    <TableRow className="hover:bg-transparent border-outline-variant/10">
+                      <TableHead className="py-5 font-black uppercase tracking-widest text-[10px] text-outline h-auto">Description</TableHead>
+                      <TableHead className="py-5 text-right font-black uppercase tracking-widest text-[10px] text-outline h-auto">Qty</TableHead>
+                      <TableHead className="py-5 text-right font-black uppercase tracking-widest text-[10px] text-outline h-auto">Rate</TableHead>
+                      <TableHead className="py-5 text-right font-black uppercase tracking-widest text-[10px] text-outline h-auto">Amount</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {invoice.items.map((item, i) => (
+                      <TableRow key={i} className="hover:bg-surface-container-low/10 border-outline-variant/5">
+                        <TableCell className="py-6 font-semibold text-on-surface">{item.description}</TableCell>
+                        <TableCell className="py-6 text-right font-medium text-on-surface-variant">{item.quantity}</TableCell>
+                        <TableCell className="py-6 text-right font-medium text-on-surface-variant">
+                          ${item.rate.toFixed(2)}
+                        </TableCell>
+                        <TableCell className="py-6 text-right font-bold text-on-surface">
+                          ${item.amount.toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
-              <div className="mt-6 flex justify-end">
-                <div className="w-64 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Subtotal</span>
-                    <span>${invoice.subtotal.toFixed(2)}</span>
+              <div className="mt-12 flex justify-end">
+                <div className="w-full md:w-80 space-y-4 p-8 bg-surface-container-low/20 rounded-3xl border border-outline-variant/10">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-sm font-bold opacity-40 uppercase tracking-widest">Subtotal</span>
+                    <span className="text-lg font-bold text-on-surface">${invoice.subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-sm font-bold opacity-40 uppercase tracking-widest">
                       Tax ({invoice.taxRate}%)
                     </span>
-                    <span>${invoice.taxAmount.toFixed(2)}</span>
+                    <span className="text-lg font-bold text-on-surface">${invoice.taxAmount.toFixed(2)}</span>
                   </div>
-                  <Separator />
-                  <div className="flex justify-between text-lg font-bold">
-                    <span>Total</span>
-                    <span>${invoice.total.toFixed(2)}</span>
+                  <Separator className="bg-outline-variant/15 my-2" />
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-xl font-black tracking-tighter text-on-surface uppercase">Total Due</span>
+                    <span className="text-3xl font-black tracking-tighter text-primary-custom">
+                      ${invoice.total.toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -364,12 +389,12 @@ export default function InvoiceDetailPage({
           </Card>
 
           {invoice.notes && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Notes</CardTitle>
+            <Card className="border-none bg-surface-container-lowest shadow-xl shadow-on-surface/5 rounded-3xl overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500 delay-200">
+              <CardHeader className="bg-surface-container-low/20 border-b border-outline-variant/5">
+                <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-outline">Notes</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">
+              <CardContent className="p-8">
+                <p className="text-lg font-medium text-on-surface-variant whitespace-pre-wrap leading-relaxed opacity-80">
                   {invoice.notes}
                 </p>
               </CardContent>
@@ -377,58 +402,79 @@ export default function InvoiceDetailPage({
           )}
         </div>
 
-        {/* Side info */}
+        {/* Sidebar Info */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Status Timeline</CardTitle>
+          <Card className="border-none bg-surface-container-lowest shadow-xl shadow-on-surface/5 rounded-3xl overflow-hidden">
+            <CardHeader className="bg-surface-container-low/20 border-b border-outline-variant/5">
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-outline">Quick Stats</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span className="text-sm">
-                  Created on{" "}
-                  {new Date(invoice.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>
-              </div>
-              {invoice.status !== "draft" && (
-                <div className="flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-blue-500" />
-                  <span className="text-sm">Sent to client</span>
-                </div>
-              )}
-              {invoice.status === "paid" && (
-                <div className="flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span className="text-sm">Payment received</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Amount Due</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+            <CardContent className="p-8 flex flex-col items-center text-center space-y-2">
+              <p className="text-sm font-bold opacity-40 uppercase tracking-[0.15em] mb-2">Total Amount</p>
+              <p className="text-5xl font-black tracking-tighter text-on-surface">
                 ${invoice.total.toFixed(2)}
               </p>
-              <p className="text-sm text-zinc-500">
-                Due{" "}
-                {new Date(invoice.dueDate).toLocaleDateString("en-US", {
-                  month: "long",
+              <p className="text-base font-bold text-on-surface-variant opacity-60">
+                Due on {new Date(invoice.dueDate).toLocaleDateString("en-US", {
+                  month: "short",
                   day: "numeric",
                   year: "numeric",
                 })}
               </p>
             </CardContent>
           </Card>
+
+          <Card className="border-none bg-surface-container-lowest shadow-xl shadow-on-surface/5 rounded-3xl overflow-hidden">
+            <CardHeader className="bg-surface-container-low/20 border-b border-outline-variant/5">
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-outline">Timeline</CardTitle>
+            </CardHeader>
+            <CardContent className="p-8 space-y-8">
+              <div className="relative space-y-8 before:absolute before:inset-0 before:left-2 before:w-0.5 before:bg-outline-variant/10 after:clear-both">
+                <div className="relative pl-10 flex flex-col gap-1">
+                  <div className="absolute left-0 top-1.5 h-4 w-4 rounded-full border-4 border-surface bg-emerald-500 shadow-sm transition-transform hover:scale-125 duration-300" />
+                  <p className="text-sm font-black uppercase tracking-widest text-on-surface">Invoice Created</p>
+                  <p className="text-sm font-semibold text-outline">
+                    {new Date(invoice.createdAt).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+
+                {invoice.status !== "draft" && (
+                  <div className="relative pl-10 flex flex-col gap-1 animate-in fade-in slide-in-from-left-2 duration-500">
+                    <div className="absolute left-0 top-1.5 h-4 w-4 rounded-full border-4 border-surface bg-primary-custom shadow-sm" />
+                    <p className="text-sm font-black uppercase tracking-widest text-on-surface">Sent to Client</p>
+                    <p className="text-sm font-semibold text-outline italic">Professional delivery via Resend</p>
+                  </div>
+                )}
+
+                {invoice.status === "paid" && (
+                  <div className="relative pl-10 flex flex-col gap-1 animate-in fade-in slide-in-from-left-2 duration-700 delay-200">
+                    <div className="absolute left-0 top-1.5 h-4 w-4 rounded-full border-4 border-surface bg-emerald-500 shadow-sm" />
+                    <p className="text-sm font-black uppercase tracking-widest text-emerald-600">Payment Resolved</p>
+                    <p className="text-sm font-semibold text-emerald-600 opacity-60">Full amount received</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Trust Banner */}
+          <div className="p-8 rounded-3xl bg-primary-custom/5 border border-primary-custom/10 text-center space-y-4">
+             <div className="w-12 h-12 bg-primary-custom/10 rounded-2xl flex items-center justify-center mx-auto text-primary-custom">
+               <span className="material-symbols-outlined text-2xl font-bold">verified_user</span>
+             </div>
+             <div>
+               <p className="text-sm font-black text-on-surface uppercase tracking-widest">Bank-Grade PDF</p>
+               <p className="text-xs font-semibold text-on-surface-variant opacity-60 leading-relaxed mt-2">
+                 Every invoice generated is legally compliant and professional by default.
+               </p>
+             </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+

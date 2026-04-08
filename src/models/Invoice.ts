@@ -93,7 +93,7 @@ const InvoiceSchema = new mongoose.Schema(
 );
 
 // Auto-generate invoice number and secure token
-InvoiceSchema.pre("validate", async function (next) {
+InvoiceSchema.pre("validate", async function (this: any) {
   if (this.isNew) {
     // Generate Invoice Number
     if (!this.invoiceNumber) {
@@ -110,7 +110,6 @@ InvoiceSchema.pre("validate", async function (next) {
         Math.random().toString(36).substring(2, 15);
     }
   }
-  next();
 });
 
 InvoiceSchema.index({ userId: 1, status: 1 });
