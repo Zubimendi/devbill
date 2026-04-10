@@ -117,8 +117,8 @@ export default function RegisterPage() {
       </section>
 
       {/* RIGHT PANEL: Auth UI */}
-      <main className="flex-1 bg-surface-container-low/20 relative flex flex-col items-center justify-center p-8 md:p-16 overflow-y-auto">
-        <div className="w-full max-w-md my-auto space-y-12">
+      <main className="flex-1 bg-surface-container-low/20 relative flex flex-col items-center p-8 md:p-16 overflow-y-auto">
+        <div className="w-full max-w-md my-auto space-y-12 pt-12">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-4 mb-16 justify-center">
             <div className="w-12 h-12 bg-primary-custom rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary-custom/20">

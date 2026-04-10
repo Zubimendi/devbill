@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/components/providers/SessionProvider";
 import { Toaster } from "sonner";
 
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+
 const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
@@ -37,8 +39,10 @@ export default function RootLayout({
         className={`${jakartaSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          {children}
-          <Toaster position="top-right" richColors />
+          <ThemeProvider>
+            {children}
+            <Toaster position="top-right" richColors />
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

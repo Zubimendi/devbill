@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 interface UserSettings {
   name: string;
@@ -45,6 +46,7 @@ interface UserSettings {
 type TabType = "profile" | "invoice" | "notifications" | "account";
 
 export default function SettingsPage() {
+  const { themeColor: globalThemeColor, setThemeColor: setGlobalThemeColor } = useTheme();
   const [activeTab, setActiveTab] = useState<TabType>("profile");
   const [settings, setSettings] = useState<UserSettings>({
     name: "",
@@ -111,6 +113,7 @@ export default function SettingsPage() {
 
       if (res.ok) {
         toast.success("Workspace preferences updated");
+        setGlobalThemeColor(settings.themeColor);
       } else {
         const data = await res.json();
         const message = data.message || "Failed to save settings";
@@ -329,11 +332,30 @@ export default function SettingsPage() {
                   </div>
                   <div className="bg-surface-container-lowest p-8 rounded-3xl shadow-xl shadow-on-surface/5 border border-outline-variant/5 text-center space-y-4 transform hover:-translate-y-1 transition-transform">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-outline">Theme Accent</p>
-                    <div className="flex justify-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-primary-custom ring-4 ring-primary-custom/10 transition-transform hover:scale-110 cursor-pointer" />
-                      <div className="w-8 h-8 rounded-full bg-rose-500 opacity-40 hover:opacity-100 transition-all cursor-pointer" />
-                      <div className="w-8 h-8 rounded-full bg-emerald-500 opacity-40 hover:opacity-100 transition-all cursor-pointer" />
-                      <div className="w-8 h-8 rounded-full bg-amber-500 opacity-40 hover:opacity-100 transition-all cursor-pointer" />
+                    <div className="flex justify-center gap-3">
+                      {[ 
+                        { name: "Indigo", color: "#4648d4" },
+                        { name: "Rose", color: "#f43f5e" },
+                        { name: "Emerald", color: "#10b981" },
+                        { name: "Amber", color: "#f59e0b" },
+                        { name: "Cyan", color: "#06b6d4" }
+                      ].map((c) => (
+                        <button
+                          key={c.color}
+                          type="button"
+                          onClick={() => {
+                            setSettings({ ...settings, themeColor: c.color });
+                            setGlobalThemeColor(c.color); // Live preview
+                          }}
+                          className={`w-10 h-10 rounded-full transition-all hover:scale-110 active:scale-95 ${
+                            settings.themeColor === c.color 
+                              ? "ring-4 ring-offset-2 ring-primary-custom shadow-lg" 
+                              : "opacity-40 hover:opacity-100"
+                          }`}
+                          style={{ backgroundColor: c.color }}
+                          title={c.name}
+                        />
+                      ))}
                     </div>
                   </div>
                 </div>

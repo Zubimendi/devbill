@@ -68,7 +68,7 @@
   --color-on-secondary: #ffffff;
   --color-error-container: #ffdad6;
   --color-background-custom: #f7f9fb;
-  --color-primary-custom: #4648d4;
+  --color-primary-custom: var(--primary-accent, #4648d4);
   --color-on-tertiary: #ffffff;
   --color-tertiary-fixed: #6ffbbe;
   --color-on-secondary-fixed: #131b2e;
